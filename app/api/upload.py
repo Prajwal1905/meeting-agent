@@ -6,6 +6,7 @@ from app.rag.embedder import embed_and_store
 from app.automation.n8n_client import trigger_n8n
 import shutil, os, uuid
 from datetime import datetime
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -74,6 +75,59 @@ async def upload_meeting(file: UploadFile = File(...)):
         return {
             "meeting_id": meeting_id,
             "transcript": transcript,
+            "summary": result["summary"],
+            "action_items": result["action_items"],
+            "decisions": result["decisions"],
+            "email_draft": result["email_draft"]
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+class TranscriptRequest(BaseModel):
+    transcript: str
+
+@router.post("/upload-transcript")
+async def upload_transcript(request: TranscriptRequest):
+    try:
+        meeting_id = str(uuid.uuid4())
+
+        print("Running LangGraph agent on transcript...")
+        result = run_agent(request.transcript)
+
+        meeting_doc = {
+            "meeting_id": meeting_id,
+            "filename": "manual_transcript",
+            "transcript": request.transcript,
+            "summary": result["summary"],
+            "action_items": result["action_items"],
+            "decisions": result["decisions"],
+            "email_draft": result["email_draft"],
+            "created_at": datetime.utcnow()
+        }
+
+        meetings_collection.insert_one(meeting_doc)
+
+        embed_and_store(
+            meeting_id=meeting_id,
+            transcript=request.transcript,
+            summary=result["summary"],
+            action_items=result["action_items"],
+            decisions=result["decisions"]
+        )
+
+        await trigger_n8n({
+            "meeting_id": meeting_id,
+            "summary": result["summary"],
+            "action_items": result["action_items"],
+            "decisions": result["decisions"],
+            "email_draft": result["email_draft"]
+        })
+
+        return {
+            "meeting_id": meeting_id,
+            "transcript": request.transcript,
             "summary": result["summary"],
             "action_items": result["action_items"],
             "decisions": result["decisions"],
