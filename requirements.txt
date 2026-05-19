@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-multipart
+openai
+langchain
+langchain-openai
+langgraph
+langchain-anthropic
+qdrant-client
+sentence-transformers
+pymongo
+python-dotenv
+httpx
+requests
