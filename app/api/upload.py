@@ -3,7 +3,7 @@ from app.transcription.whisper import transcribe_audio
 from app.db.mongo import meetings_collection
 from app.agent.graph import run_agent
 from app.rag.embedder import embed_and_store
-from app.automation.n8n_client import trigger_n8n
+from app.automation.n8n_client import trigger_n8n, send_slack_notification
 import shutil, os, uuid
 from datetime import datetime
 from pydantic import BaseModel
@@ -19,22 +19,18 @@ async def upload_meeting(file: UploadFile = File(...)):
         meeting_id = str(uuid.uuid4())
         file_path = f"{UPLOAD_DIR}/{meeting_id}_{file.filename}"
 
-        # save file
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         print(f"File saved: {file_path}")
 
-        # transcribe
         print("Transcribing audio...")
         transcript = transcribe_audio(file_path)
         print("Transcription done.")
 
-        # run agent
         print("Running LangGraph agent...")
         result = run_agent(transcript)
         print("Agent done.")
 
-        # store in mongo
         meeting_doc = {
             "meeting_id": meeting_id,
             "filename": file.filename,
@@ -48,7 +44,6 @@ async def upload_meeting(file: UploadFile = File(...)):
         meetings_collection.insert_one(meeting_doc)
         print("Saved to MongoDB.")
 
-        # store in qdrant
         print("Embedding and storing in Qdrant...")
         embed_and_store(
             meeting_id=meeting_id,
@@ -59,7 +54,6 @@ async def upload_meeting(file: UploadFile = File(...)):
         )
         print("Qdrant done.")
 
-        # trigger n8n
         print("Triggering n8n automation...")
         await trigger_n8n({
             "meeting_id": meeting_id,
@@ -69,7 +63,13 @@ async def upload_meeting(file: UploadFile = File(...)):
             "email_draft": result["email_draft"]
         })
 
-        # cleanup audio file
+        print("Sending Slack notification...")
+        await send_slack_notification({
+            "summary": result["summary"],
+            "action_items": result["action_items"]
+        })
+        print("Slack notified.")
+
         os.remove(file_path)
 
         return {
@@ -83,7 +83,7 @@ async def upload_meeting(file: UploadFile = File(...)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 
 class TranscriptRequest(BaseModel):
     transcript: str
@@ -124,6 +124,13 @@ async def upload_transcript(request: TranscriptRequest):
             "decisions": result["decisions"],
             "email_draft": result["email_draft"]
         })
+
+        print("Sending Slack notification...")
+        await send_slack_notification({
+            "summary": result["summary"],
+            "action_items": result["action_items"]
+        })
+        print("Slack notified.")
 
         return {
             "meeting_id": meeting_id,
