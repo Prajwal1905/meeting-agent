@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6
+    container_name: meeting-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  qdrant:
+    image: qdrant/qdrant
+    container_name: meeting-qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  n8n:
+    image: n8nio/n8n
+    container_name: meeting-n8n
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+
+  backend:
+    build: .
+    container_name: meeting-backend
+    ports:
+      - "8001:8001"
+    depends_on:
+      - mongodb
+      - qdrant
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017
+      - QDRANT_URL=http://qdrant:6333
+      - N8N_WEBHOOK_URL=http://n8n:5678/webhook/meeting
+    volumes:
+      - ./uploads:/app/uploads
+
+volumes:
+  mongodb_data:
+  qdrant_data:
+  n8n_data:
