@@ -11,11 +11,11 @@ Return only the bullet points, nothing else.
 
 ACTION_ITEMS_PROMPT = """
 You are an expert at extracting action items from meeting transcripts.
-Read the transcript and extract every single action item mentioned.
+Read the transcript carefully and extract EVERY task or commitment made by any person.
 
-For each action item return a JSON array like this:
+Return ONLY a valid JSON array, no explanation, no markdown, no backticks:
 [
-  {{"person": "Name or Unknown", "task": "what they need to do", "deadline": "deadline or Not specified"}},
+  {{"person": "Name", "task": "what they need to do", "deadline": "deadline or Not specified"}}
 ]
 
 Transcript:
