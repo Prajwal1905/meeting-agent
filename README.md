@@ -19,29 +19,21 @@ MeetingMind solves this completely automatically.
 ---
 
 ## How It Works
-Audio/Transcript Upload
-↓
-Whisper API transcribes audio
-↓
-LangGraph Agent runs
-↓
-┌─────────────────────┐
-│  Node 1: Summarize  │
-│  Node 2: Extract Actions     │
-│  Node 3: Extract Decisions   │
-│  Node 4: Draft Email         │
-└─────────────────────┘
-↓
-Store in Qdrant (RAG)
-↓
-n8n fires automatically
-↓
-┌─────────────────┐
-│  Email sent     │
-│  Slack notified │
-└─────────────────┘
-↓
-Searchable forever via RAG
+User uploads audio/transcript
+        →
+Whisper transcribes audio to text
+        →
+LangGraph Agent processes transcript
+        →
+Summary + Action Items + Decisions + Email Draft generated
+        →
+Stored in MongoDB + Qdrant (RAG)
+        →
+n8n triggered automatically
+        →
+Gmail email sent to attendees + Slack notification posted
+        →
+Search any past meeting anytime via RAG
 
 ---
 
@@ -74,34 +66,6 @@ Searchable forever via RAG
 
 ---
 
-## Project Structure
-
-meeting-agent/
-├── app/
-│   ├── main.py
-│   ├── api/
-│   │   ├── upload.py
-│   │   ├── query.py
-│   │   └── webhook.py
-│   ├── agent/
-│   │   ├── graph.py
-│   │   ├── nodes/
-│   │   └── prompts.py
-│   ├── rag/
-│   │   ├── embedder.py
-│   │   └── retriever.py
-│   ├── transcription/
-│   │   └── whisper.py
-│   ├── db/
-│   │   └── mongo.py
-│   └── automation/
-│       └── n8n_client.py
-├── frontend/
-├── docker-compose.yml
-├── Dockerfile
-└── requirements.txt
-
-
 ---
 
 ## Quick Start
@@ -121,7 +85,7 @@ cd meeting-agent
 ### 2. Set up environment
 
 ```bash
-cp .env.example .env
+cp  .env
 ```
 
 Fill in your `.env`:
