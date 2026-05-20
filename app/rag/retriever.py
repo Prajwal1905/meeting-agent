@@ -5,7 +5,7 @@ import os
 
 load_dotenv()
 
-client = QdrantClient(os.getenv("QDRANT_URL"))
+client = QdrantClient(url=os.getenv("QDRANT_URL"))
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 COLLECTION_NAME = "meetings"
@@ -13,11 +13,11 @@ COLLECTION_NAME = "meetings"
 def search_meetings(query: str, top_k: int = 5) -> list:
     query_vector = model.encode(query).tolist()
 
-    results = client.search(
+    results = client.query_points(
         collection_name=COLLECTION_NAME,
-        query_vector=query_vector,
+        query=query_vector,
         limit=top_k
-    )
+    ).points
 
     output = []
     for r in results:
