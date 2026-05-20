@@ -1,14 +1,6 @@
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:6
-    container_name: meeting-mongodb
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-
   qdrant:
     image: qdrant/qdrant
     container_name: meeting-qdrant
@@ -33,18 +25,16 @@ services:
     ports:
       - "8001:8001"
     depends_on:
-      - mongodb
       - qdrant
     env_file:
       - .env
     environment:
-      - MONGODB_URL=mongodb://mongodb:27017
+      - MONGODB_URL=mongodb://host.docker.internal:27017
       - QDRANT_URL=http://qdrant:6333
       - N8N_WEBHOOK_URL=http://n8n:5678/webhook/meeting
-    volumes:
-      - ./uploads:/app/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
-  mongodb_data:
   qdrant_data:
   n8n_data:
