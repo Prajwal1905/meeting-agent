@@ -1,5 +1,5 @@
 from langgraph.graph import StateGraph, END
-from langchain_anthropic import ChatAnthropic
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 from app.agent.prompts import (
     SUMMARY_PROMPT,
@@ -13,9 +13,9 @@ import json, os
 
 load_dotenv()
 
-llm = ChatAnthropic(
-    model="claude-sonnet-4-20250514",
-    api_key=os.getenv("ANTHROPIC_API_KEY")
+llm = ChatOpenAI(
+    model="gpt-4o-mini",
+    api_key=os.getenv("OPENAI_API_KEY")
 )
 
 class AgentState(TypedDict):
