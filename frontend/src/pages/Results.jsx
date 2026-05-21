@@ -17,7 +17,7 @@ export default function Results() {
 
       <h1 className="text-3xl font-bold mb-8">Meeting Results</h1>
 
-      <Section title="📋 Summary">
+      <Section title=" Summary">
         <ul className="space-y-2">
           {state.summary.split('\n').filter(l => l.trim()).map((line, i) => (
             <li key={i} className="text-gray-300 text-sm leading-relaxed">{line.replace(/^-\s*/, '')}</li>
@@ -25,7 +25,7 @@ export default function Results() {
         </ul>
       </Section>
 
-      <Section title="✅ Action Items">
+      <Section title=" Action Items">
         {state.action_items.length === 0 ? (
           <p className="text-gray-500 text-sm">No action items found</p>
         ) : (
@@ -43,7 +43,7 @@ export default function Results() {
         )}
       </Section>
 
-      <Section title="🏛️ Decisions">
+      <Section title=" Decisions">
         {state.decisions.length === 0 ? (
           <p className="text-gray-500 text-sm">No decisions found</p>
         ) : (
@@ -58,7 +58,7 @@ export default function Results() {
         )}
       </Section>
 
-      <Section title="📧 Email Draft">
+      <Section title=" Email Draft">
         <pre className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed font-sans">
           {state.email_draft}
         </pre>
