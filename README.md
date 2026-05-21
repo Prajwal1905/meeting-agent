@@ -1,6 +1,10 @@
 # MeetingMind — Agentic Meeting Intelligence System
 
 > Upload a meeting recording. AI handles everything else.
+> ## 🎥 Demo Video
+[▶ Watch Live Demo](https://drive.google.com/drive/u/0/folders/1QGy19gVfNv8qH6autuTb5rFLNBdBx0W_)
+
+---
 
 MeetingMind is an end-to-end agentic AI system that automatically transcribes meeting audio, extracts action items and decisions, drafts follow-up emails, sends notifications, and enables semantic search across all past meetings.
 
