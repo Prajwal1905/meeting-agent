@@ -9,16 +9,6 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
 
-  n8n:
-    image: n8nio/n8n
-    container_name: meeting-n8n
-    ports:
-      - "5678:5678"
-    volumes:
-      - n8n_data:/home/node/.n8n
-    environment:
-      - N8N_BASIC_AUTH_ACTIVE=false
-
   backend:
     build: .
     container_name: meeting-backend
@@ -31,10 +21,8 @@ services:
     environment:
       - MONGODB_URL=mongodb://host.docker.internal:27017
       - QDRANT_URL=http://qdrant:6333
-      - N8N_WEBHOOK_URL=http://n8n:5678/webhook/meeting
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
 volumes:
   qdrant_data:
-  n8n_data:
